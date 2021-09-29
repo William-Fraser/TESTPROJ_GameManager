@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public static GameManager manager; //singleton inst
 
     private static int managers;
+    private static int managersTriedToLoad;
 
     public float health;
     public float eXP;
@@ -33,6 +34,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         managers += 1; // adds to the manager count upon being instanced
+        managersTriedToLoad += 1;
 
         if (manager == null)
         {
@@ -72,7 +74,8 @@ public class GameManager : MonoBehaviour
         if (SceneManager.GetActiveScene().buildIndex != 0)
         { 
             GUI.Label(new Rect(10, 10, 100, 30), $"Health: {health}");
-            GUI.Label(new Rect(10, 40, 100, 30), $"# of Managers: {managers}");
+            GUI.Label(new Rect(10, 40, 100, 50), $"# of \nManagers: {managers}");
+            GUI.Label(new Rect(110, 40, 100, 50), $"# of Managers tried loading: {managersTriedToLoad}");
             GUI.Label(new Rect(10, 150, 100, 70), "Controls:\n1, 2, 3, 4, 5, (S)ave, (L)oad");
             GUI.Label(new Rect(110, 10, 100, 30), $"EXP: {eXP}");
             GUI.Label(new Rect(220, 10, 100, 30), $"Score: {score}");
