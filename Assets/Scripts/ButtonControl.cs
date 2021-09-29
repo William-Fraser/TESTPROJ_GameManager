@@ -96,4 +96,13 @@ public class ButtonControl : MonoBehaviour
     {
         GameManager.manager.Load();
     }
+
+    public void NewStart()
+    {
+        GameManager.manager.NewStart();
+    }
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

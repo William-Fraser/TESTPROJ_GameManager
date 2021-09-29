@@ -14,7 +14,6 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager manager; //singleton inst
-    public GameObject sceneObject; // passed gameObject singleton (bad solution to moving the same object from scene to scene)
 
     private static int managers;
 
@@ -37,7 +36,6 @@ public class GameManager : MonoBehaviour
 
         if (manager == null)
         {
-            DontDestroyOnLoad(sceneObject);
             DontDestroyOnLoad(this.gameObject);
             manager = this; // setting this object to be THE singleton
         }
@@ -71,35 +69,39 @@ public class GameManager : MonoBehaviour
 
     private void OnGUI()
     {
-        GUI.Label(new Rect(10, 10, 100, 30), $"Health: {health}");
-        GUI.Label(new Rect(10, 40, 100, 30), $"# of Managers: {managers}");
-        GUI.Label(new Rect(110, 10, 100, 30), $"EXP: {eXP}");
-        GUI.Label(new Rect(220, 10, 100, 30), $"Score: {score}");
-        GUI.Label(new Rect(330, 10, 100, 30), $"Shield: {shield}");
-        GUI.Label(new Rect(440, 10, 100, 30), $"Mana: {mana}");
-        GUI.Label(new Rect(550, 10, 100, 30), $"Life: {life}");
+        if (SceneManager.GetActiveScene().buildIndex != 0)
+        { 
+            GUI.Label(new Rect(10, 10, 100, 30), $"Health: {health}");
+            GUI.Label(new Rect(10, 40, 100, 30), $"# of Managers: {managers}");
+            GUI.Label(new Rect(10, 200, 100, 70), "Controls:\n1, 2, 3, 4, 5, (S)ave, (L)oad");
+            GUI.Label(new Rect(110, 10, 100, 30), $"EXP: {eXP}");
+            GUI.Label(new Rect(220, 10, 100, 30), $"Score: {score}");
+            GUI.Label(new Rect(330, 10, 100, 30), $"Shield: {shield}");
+            GUI.Label(new Rect(440, 10, 100, 30), $"Mana: {mana}");
+            GUI.Label(new Rect(550, 10, 100, 30), $"Life: {life}");
+        }
     }
     private void Controls() // Global Controls
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(1);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(2);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            SceneManager.LoadScene(2);
+            SceneManager.LoadScene(3);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            SceneManager.LoadScene(3);
+            SceneManager.LoadScene(4);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            SceneManager.LoadScene(4);
+            SceneManager.LoadScene(5);
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
@@ -136,12 +138,13 @@ public class GameManager : MonoBehaviour
         FileStream file = File.Create(Application.persistentDataPath + "/savedInfo.dat");
 
         SaveInfo savedInfo = new SaveInfo();
-        savedInfo.health = GameManager.manager.health;
-        savedInfo.eXP = GameManager.manager.eXP;
-        savedInfo.score = GameManager.manager.score;
-        savedInfo.shield = GameManager.manager.shield;
-        savedInfo.mana = GameManager.manager.mana;
-        savedInfo.life = GameManager.manager.life;
+        savedInfo.scene = SceneManager.GetActiveScene().buildIndex; 
+        savedInfo.health = health;
+        savedInfo.eXP = eXP;
+        savedInfo.score = score;
+        savedInfo.shield = shield;
+        savedInfo.mana = mana;
+        savedInfo.life = life;
 
         saveText.CrossFadeAlpha(1, .1f, true);
         StartCoroutine(WaitToFadeText("save"));
@@ -158,16 +161,27 @@ public class GameManager : MonoBehaviour
             SaveInfo loadedInfo = (SaveInfo)bf.Deserialize(file);
             file.Close();
 
-            GameManager.manager.health = loadedInfo.health;
-            GameManager.manager.eXP = loadedInfo.eXP;
-            GameManager.manager.score = loadedInfo.score;
-            GameManager.manager.shield = loadedInfo.shield;
-            GameManager.manager.mana = loadedInfo.mana;
-            GameManager.manager.life = loadedInfo.life;
+            SceneManager.LoadScene(loadedInfo.scene);
+            health = loadedInfo.health;
+            eXP = loadedInfo.eXP;
+            score = loadedInfo.score;
+            shield = loadedInfo.shield;
+            mana = loadedInfo.mana;
+            life = loadedInfo.life;
 
             loadText.CrossFadeAlpha(1, .1f, true);
             StartCoroutine(WaitToFadeText("load"));
         }
+    }
+    public void NewStart()
+    {
+        health = 100;
+        eXP = 0;
+        score = 0;
+        shield = 150;
+        mana = 420;
+        life = 3;
+        SceneManager.LoadScene(1);
     }
     IEnumerator WaitToFadeText(string fade)
     {
@@ -182,6 +196,7 @@ public class GameManager : MonoBehaviour
 [Serializable]
 class SaveInfo
 {
+    public int scene;
     public float health;
     public float eXP;
     public int score;
