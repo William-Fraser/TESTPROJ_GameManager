@@ -378,7 +378,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2569443332207838738, guid: 00ab6cf8a408ded489abfe8f61310846, type: 3}
         m_TargetAssemblyTypeName: ButtonControl, Assembly-CSharp
         m_MethodName: ReturnToMenu
         m_Mode: 1
