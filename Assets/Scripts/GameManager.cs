@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         { 
             GUI.Label(new Rect(10, 10, 100, 30), $"Health: {health}");
             GUI.Label(new Rect(10, 40, 100, 30), $"# of Managers: {managers}");
-            GUI.Label(new Rect(10, 200, 100, 70), "Controls:\n1, 2, 3, 4, 5, (S)ave, (L)oad");
+            GUI.Label(new Rect(10, 150, 100, 70), "Controls:\n1, 2, 3, 4, 5, (S)ave, (L)oad");
             GUI.Label(new Rect(110, 10, 100, 30), $"EXP: {eXP}");
             GUI.Label(new Rect(220, 10, 100, 30), $"Score: {score}");
             GUI.Label(new Rect(330, 10, 100, 30), $"Shield: {shield}");
@@ -182,6 +182,10 @@ public class GameManager : MonoBehaviour
         mana = 420;
         life = 3;
         SceneManager.LoadScene(1);
+    }
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
     IEnumerator WaitToFadeText(string fade)
     {

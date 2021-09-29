@@ -105,4 +105,8 @@ public class ButtonControl : MonoBehaviour
     {
         Application.Quit();
     }
+    public void ReturnToMenu()
+    {
+        GameManager.manager.ReturnToMenu();
+    }
 }
