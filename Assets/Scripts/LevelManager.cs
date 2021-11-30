@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonControl : MonoBehaviour
+public class LevelManager : MonoBehaviour
 {
-    public static ButtonControl control;
+    public static LevelManager control;
     private float maxHealth;
     // Start is called before the first frame update
     void Start()
     {
-        control = this;
         maxHealth = GameManager.manager.health;
     }
 
