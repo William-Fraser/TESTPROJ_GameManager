@@ -11,13 +11,25 @@ using System;
 // disappearing tex
 using UnityEngine.UI;
 
+public enum GameState
+{ 
+    TITLEMENU,
+    GAMEPLAY,
+    WIN,
+    LOSE,
+    PAUSE,
+    OPTIONS,
+    CREDITS
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager manager; //singleton inst
 
-    private static int managers;
-    private static int managersTriedToLoad;
-
+    public UIManager uiManager;
+    public Text saveText;
+    public Text loadText;
+    
     public float health;
     public float eXP;
     public int score;
@@ -25,17 +37,15 @@ public class GameManager : MonoBehaviour
     public float mana;
     public int life;
 
-    public Text saveText;
-    public Text loadText;
+    private GameState gameState;
+    private GameState savedScreenState;
+
     private bool fadeSave;
     private bool fadeLoad;
     private float textFadeWaitTime = 1.5f;
 
     void Awake()
     {
-        managers += 1; // adds to the manager count upon being instanced
-        managersTriedToLoad += 1;
-
         if (manager == null)
         {
             DontDestroyOnLoad(this.gameObject);
@@ -46,67 +56,87 @@ public class GameManager : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        // make fading text invisible
+        // make fading text invisible at start
         saveText.CrossFadeAlpha(0, .1f, true);
         loadText.CrossFadeAlpha(0, .1f, true);
-    }
-    private void OnDestroy()
-    {
-        managers -= 1; // removes from manager count upon Destruction
+
+        gameState = GameState.TITLEMENU;
     }
 
     void Update() 
     {
         Controls();
 
-        if (fadeSave)
+        FadeText();
+
+        switch (gameState)
         {
-            saveText.CrossFadeAlpha(0, 3, false); fadeSave = false;
-        }
-        if (fadeLoad)
-        {
-            loadText.CrossFadeAlpha(0, 3, false); fadeLoad = false;
+            case GameState.TITLEMENU:
+                {
+                    if (SceneManager.GetActiveScene() != SceneManager.GetSceneByBuildIndex(0))
+                    {
+                        SceneManager.LoadScene(0);
+                        SaveScreenState();
+                    }
+                    uiManager.LoadTitleMenu();
+                    return; 
+                }
+            case GameState.GAMEPLAY:
+                {
+                    if (SceneManager.GetActiveScene() != SceneManager.GetSceneByBuildIndex(1))
+                    {
+                        SceneManager.LoadScene(1);
+                        SaveScreenState();
+                    }
+                    uiManager.LoadGameplay();
+                    return;
+                }
+            case GameState.WIN:
+                {
+                    uiManager.LoadWinScreen();
+                    return;
+                }
+            case GameState.LOSE:
+                {
+                    uiManager.LoadLoseScreen();
+                    return;
+                }
+            case GameState.PAUSE:
+                {
+                    uiManager.LoadPauseScreen();
+                    return;
+                }
+            case GameState.OPTIONS:
+                {
+                    uiManager.LoadOptions();
+                    return;
+                }
+            case GameState.CREDITS:
+                {
+                    uiManager.LoadCredits();
+                    return;
+                }
         }
     }
 
-    private void OnGUI()
+    public void ChangeState(GameState targetState)
     {
-        if (SceneManager.GetActiveScene().buildIndex != 0)
-        { 
-            GUI.Label(new Rect(10, 10, 100, 30), $"Health: {health}");
-            GUI.Label(new Rect(10, 40, 100, 50), $"# of \nManagers: {managers}");
-            GUI.Label(new Rect(110, 40, 100, 50), $"# of Managers tried loading: {managersTriedToLoad}");
-            GUI.Label(new Rect(10, 150, 100, 70), "Controls:\n1, 2, 3, 4, 5, (S)ave, (L)oad");
-            GUI.Label(new Rect(110, 10, 100, 30), $"EXP: {eXP}");
-            GUI.Label(new Rect(220, 10, 100, 30), $"Score: {score}");
-            GUI.Label(new Rect(330, 10, 100, 30), $"Shield: {shield}");
-            GUI.Label(new Rect(440, 10, 100, 30), $"Mana: {mana}");
-            GUI.Label(new Rect(550, 10, 100, 30), $"Life: {life}");
-        }
+        gameState = targetState;
     }
+
+    public void SaveScreenState()
+    {
+        savedScreenState = gameState;
+    }
+
+    public void ReturnToPreviousState()
+    {
+        gameState = savedScreenState;
+    }
+
     private void Controls() // Global Controls
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            SceneManager.LoadScene(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            SceneManager.LoadScene(2);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            SceneManager.LoadScene(3);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            SceneManager.LoadScene(4);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            SceneManager.LoadScene(5);
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.S))
         {
             Save();
         }
@@ -114,27 +144,15 @@ public class GameManager : MonoBehaviour
         {
             Load();
         }
-        /*else if (Input.GetKeyDown(KeyCode.E)) /// NOT WORKING :(
-        {
-
-            if (SceneManager.GetSceneAt(SceneManager.GetActiveScene().buildIndex + 1) != null)
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-            else
+        if (gameState != GameState.TITLEMENU)
+        { 
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                SceneManager.LoadScene(0);
+                gameState = GameState.PAUSE;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Q))
-        {
-
-            if (SceneManager.GetActiveScene().buildIndex - 1 >= 0)
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
-            else
-            {
-                SceneManager.LoadScene(SceneManager.sceneCount);
-            }
-        }*/
     }
+    
     public void Save() // canned file save method
     {
         BinaryFormatter bf = new BinaryFormatter();
@@ -155,6 +173,7 @@ public class GameManager : MonoBehaviour
         bf.Serialize(file, savedInfo);
         file.Close();
     }
+    
     public void Load() // canned file load method
     {
         if (File.Exists(Application.persistentDataPath + "/savedInfo.dat"))
@@ -176,6 +195,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(WaitToFadeText("load"));
         }
     }
+    
     public void NewStart()
     {
         health = 100;
@@ -186,10 +206,24 @@ public class GameManager : MonoBehaviour
         life = 3;
         SceneManager.LoadScene(1);
     }
+    
     public void ReturnToMenu()
     {
         SceneManager.LoadScene(0);
     }
+
+    public void FadeText()
+    {
+        if (fadeSave)
+        {
+            saveText.CrossFadeAlpha(0, 3, false); fadeSave = false;
+        }
+        if (fadeLoad)
+        {
+            loadText.CrossFadeAlpha(0, 3, false); fadeLoad = false;
+        }
+    }
+
     IEnumerator WaitToFadeText(string fade)
     {
         yield return new WaitForSeconds(textFadeWaitTime);

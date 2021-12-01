@@ -9,18 +9,18 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: b75541079f690ae4ba08d824d080b376
   - enabled: 1
-    path: Assets/Scenes/Scene1.unity
+    path: Assets/Scenes/Gameplay.unity
     guid: dca05b73a574bb844a6d43d6a797dc3c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene2.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene3.unity
     guid: 4e69a4237acf63948be11fbd0eb7ed10
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/EnemyAI_Demo-Squad_tussle.unity
     guid: b97546ae2eb64fd44aa1f82a928503b2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/EnemyAI_Demo-The_Waltz.unity
     guid: fa2b2097f9a2b7044ad601e89de6d807
   m_configObjects: {}

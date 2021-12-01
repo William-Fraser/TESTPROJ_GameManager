@@ -5,107 +5,60 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager control;
-    private float maxHealth;
-    // Start is called before the first frame update
-    void Start()
+    
+    public void ChangeGameStateToTitleMenu()
     {
-        maxHealth = GameManager.manager.health;
-    }
-
-    public void LoseHealth()
-    {
-        if (GameManager.manager.health > 0)
-        {
-            GameManager.manager.health -= 10;
-        }
-    }
-    public void GainHealth()
-    {
-        if (GameManager.manager.health < maxHealth)
-        {
-            GameManager.manager.health += 10;
-        }
+        GameManager.manager.ChangeState(GameState.TITLEMENU);
     }
     
-    public void LoseEXP()
+    public void ChangeGameStateToGamePlay()
     {
-        if (GameManager.manager.eXP > 0)
-        {
-            GameManager.manager.eXP -= 10;
-        }
-    }
-    public void GainEXP()
-    {
-        GameManager.manager.eXP += 10;
+        GameManager.manager.ChangeState(GameState.GAMEPLAY);
     }
     
-    public void LoseScore()
+    public void ChangeGameStateToWin()
     {
-        if (GameManager.manager.score > 0)
-        {
-            GameManager.manager.score -= 10;
-        }
-    }
-    public void GainScore()
-    {
-        GameManager.manager.score += 10;
+        GameManager.manager.ChangeState(GameState.WIN);
     }
     
-    public void LoseShield()
+    public void ChangeGameStateToLose()
     {
-        if (GameManager.manager.shield > 0)
-        {
-            GameManager.manager.shield -= 10;
-        }
-    }
-    public void GainShield()
-    {
-        GameManager.manager.shield += 10;
+        GameManager.manager.ChangeState(GameState.LOSE);
     }
 
-    public void LoseMana()
+    public void ChangeGameStateToPause()
     {
-        if (GameManager.manager.mana > 0)
-        {
-            GameManager.manager.mana -= 10;
-        }
-    }
-    public void GainMana()
-    {
-        GameManager.manager.mana += 10;
+        GameManager.manager.ChangeState(GameState.PAUSE);
     }
 
-    public void LoseLife()
+    public void ChangeGameStateToOptions()
     {
-        if (GameManager.manager.life > 1)
-        {
-            GameManager.manager.life -= 1;
-        }
+        GameManager.manager.ChangeState(GameState.OPTIONS);
     }
-    public void GainLife()
+
+    public void ChangeGameStateToCredits()
     {
-        GameManager.manager.life += 1;
+        GameManager.manager.ChangeState(GameState.CREDITS);
+    }
+
+    public void ChangeGameStateToPrevious()
+    {
+        GameManager.manager.ReturnToPreviousState();
     }
 
     public void Save()
     {
         GameManager.manager.Save();
     }
+
     public void Load()
     {
         GameManager.manager.Load();
     }
 
-    public void NewStart()
-    {
-        GameManager.manager.NewStart();
-    }
     public void QuitGame()
     {
         Application.Quit();
     }
-    public void ReturnToMenu()
-    {
-        GameManager.manager.ReturnToMenu();
-    }
+
 }
