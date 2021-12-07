@@ -42,13 +42,11 @@ public class UIManager : MonoBehaviour
 
     public void LoadWinScreen()
     {
-        DisableAll();
         winDisplay.enabled = true;
     }
 
     public void LoadLoseScreen()
     {
-        DisableAll();
         loseDisplay.enabled = true;
     }
 

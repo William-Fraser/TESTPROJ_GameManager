@@ -26,19 +26,17 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager manager; //singleton inst
 
+    public LevelManager levelManager;
     public UIManager uiManager;
     public Text saveText;
     public Text loadText;
-    
-    public float health;
-    public float eXP;
-    public int score;
-    public float shield;
-    public float mana;
-    public int life;
+    public Button[] menuLoadButton;
 
     private GameState gameState;
     private GameState savedScreenState;
+    // title acts as default state
+    private bool gameplay;
+    private bool paused;
 
     private bool fadeSave;
     private bool fadeLoad;
@@ -69,6 +67,8 @@ public class GameManager : MonoBehaviour
 
         FadeText();
 
+        ButtonFade();
+
         switch (gameState)
         {
             case GameState.TITLEMENU:
@@ -78,6 +78,7 @@ public class GameManager : MonoBehaviour
                         SceneManager.LoadScene(0);
                         SaveScreenState();
                     }
+
                     uiManager.LoadTitleMenu();
                     return; 
                 }
@@ -88,7 +89,14 @@ public class GameManager : MonoBehaviour
                         SceneManager.LoadScene(1);
                         SaveScreenState();
                     }
+
+                    if (Time.timeScale == 0)
+                    {
+                        Time.timeScale = 1;  
+                    }
+
                     uiManager.LoadGameplay();
+                    levelManager.ManageGameplay();
                     return;
                 }
             case GameState.WIN:
@@ -103,6 +111,8 @@ public class GameManager : MonoBehaviour
                 }
             case GameState.PAUSE:
                 {
+                    Time.timeScale = 0;
+
                     uiManager.LoadPauseScreen();
                     return;
                 }
@@ -136,19 +146,21 @@ public class GameManager : MonoBehaviour
 
     private void Controls() // Global Controls
     {
-        if (Input.GetKeyDown(KeyCode.S))
+        // quick save/load
+        /*if (Input.GetKeyDown(KeyCode.S))
         {
             Save();
         }
         else if (Input.GetKeyDown(KeyCode.L))
         {
             Load();
-        }
+        }*/
+
         if (gameState != GameState.TITLEMENU)
         { 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                gameState = GameState.PAUSE;
+                levelManager.ChangeGameStateToPause();
             }
         }
     }
@@ -159,13 +171,9 @@ public class GameManager : MonoBehaviour
         FileStream file = File.Create(Application.persistentDataPath + "/savedInfo.dat");
 
         SaveInfo savedInfo = new SaveInfo();
-        savedInfo.scene = SceneManager.GetActiveScene().buildIndex; 
-        savedInfo.health = health;
-        savedInfo.eXP = eXP;
-        savedInfo.score = score;
-        savedInfo.shield = shield;
-        savedInfo.mana = mana;
-        savedInfo.life = life;
+        savedInfo.scene = SceneManager.GetActiveScene().buildIndex;
+        savedInfo.activeScreen = levelManager.activeScreen;
+        savedInfo.gameState = gameState;
 
         saveText.CrossFadeAlpha(1, .1f, true);
         StartCoroutine(WaitToFadeText("save"));
@@ -184,36 +192,21 @@ public class GameManager : MonoBehaviour
             file.Close();
 
             SceneManager.LoadScene(loadedInfo.scene);
-            health = loadedInfo.health;
-            eXP = loadedInfo.eXP;
-            score = loadedInfo.score;
-            shield = loadedInfo.shield;
-            mana = loadedInfo.mana;
-            life = loadedInfo.life;
+            levelManager.activeScreen = loadedInfo.activeScreen;
+            gameState = loadedInfo.gameState;
 
             loadText.CrossFadeAlpha(1, .1f, true);
             StartCoroutine(WaitToFadeText("load"));
         }
     }
     
-    public void NewStart()
-    {
-        health = 100;
-        eXP = 0;
-        score = 0;
-        shield = 150;
-        mana = 420;
-        life = 3;
-        SceneManager.LoadScene(1);
-    }
-    
-    public void ReturnToMenu()
-    {
-        SceneManager.LoadScene(0);
-    }
-
     public void FadeText()
     {
+        if (Time.timeScale == 0)
+        { 
+            saveText.CrossFadeAlpha(0, 0, true); fadeSave = false;
+            loadText.CrossFadeAlpha(0, 0, true); fadeLoad = false;
+        }
         if (fadeSave)
         {
             saveText.CrossFadeAlpha(0, 3, false); fadeSave = false;
@@ -221,6 +214,20 @@ public class GameManager : MonoBehaviour
         if (fadeLoad)
         {
             loadText.CrossFadeAlpha(0, 3, false); fadeLoad = false;
+        }
+    }
+
+    private void ButtonFade()
+    {
+        if (!File.Exists(Application.persistentDataPath + "/savedInfo.dat"))
+        {
+            foreach (Button button in menuLoadButton)
+                button.interactable = false;
+        }
+        else
+        {
+            foreach (Button button in menuLoadButton)
+                button.interactable = true;
         }
     }
 
@@ -237,12 +244,8 @@ public class GameManager : MonoBehaviour
 [Serializable]
 class SaveInfo
 {
+    public int activeScreen;
+    public GameState gameState;
     public int scene;
-    public float health;
-    public float eXP;
-    public int score;
-    public float shield;
-    public float mana;
-    public int life;
 }
 
